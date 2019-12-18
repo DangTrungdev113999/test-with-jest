@@ -1,37 +1,59 @@
-const request = require("request");
+const fs = require("fs");
+const path = require("path");
+
+const { apis } = require("./../services/op-avy.vn");
+const { OP_AVY_URL } = require("./../constants/index");
 let bearerToken = "";
 
 const operatorsLogin = (req, res) => {
-  request.post(
-    {
-      url: "https://api-dev.avy.vn/api/v1/operators/login",
-      form: {
-        phone: "+84378345621",
-        password: "123456"
-      }
-    },
-    (err, response, body) => {
-      bearerToken = JSON.parse(body).data.token;
-      res.status(200).send(JSON.parse(body));
-    }
-  );
+  const data = {
+    phone: "+84378345621",
+    password: "123456"
+  };
+  apis("POST", `${OP_AVY_URL}/operators/login`, data)
+    .then(function(response) {
+      bearerToken = response.data.token;
+      res.status(200).json(response);
+    })
+    .catch(function(err) {
+      res.status(500).json(err);
+    });
 };
 
 const operatorsMe = (req, res) => {
-  request.get(
-    {
-      url: "https://api-dev.avy.vn/api/v1/operators/me",
-      auth: {
-        bearer: bearerToken
+  apis("GET", `${OP_AVY_URL}/operators/me`, null, bearerToken)
+    .then(function(response) {
+      res.status(200).json(response);
+    })
+    .catch(function(err) {
+      res.status(500).json(err);
+    });
+};
+
+const operatorsMeFiles = (req, res) => {
+  const formData = {
+    file: {
+      value: fs.createReadStream(
+        path.join(__dirname, "./../assets/images/imageTest.jpg")
+      ),
+      options: {
+        filename: "imageTest.jpg",
+        contentType: "image/jpg"
       }
-    },
-    (error, response, body) => {
-      res.status(200).send(JSON.parse(body));
     }
-  );
+  };
+
+  apis("POST", `${OP_AVY_URL}/operators/me/files`, null, bearerToken, formData)
+    .then(function(response) {
+      res.status(200).json(response);
+    })
+    .catch(function(err) {
+      res.status(500).json(err);
+    });
 };
 
 module.exports = {
   operatorsLogin,
-  operatorsMe
+  operatorsMe,
+  operatorsMeFiles
 };
