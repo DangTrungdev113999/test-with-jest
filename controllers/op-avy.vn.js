@@ -1,7 +1,7 @@
 const fs = require("fs");
 const path = require("path");
 
-const { apis } = require("./../services/op-avy.vn");
+const { apis } = require("./../services/index");
 const { OP_AVY_URL } = require("./../constants/index");
 let bearerToken = "";
 
@@ -11,21 +11,21 @@ const operatorsLogin = (req, res) => {
     password: "123456"
   };
   apis("POST", `${OP_AVY_URL}/operators/login`, data)
-    .then(function(response) {
+    .then((response) => {
       bearerToken = response.data.token;
       res.status(200).json(response);
     })
-    .catch(function(err) {
+    .catch((err) => {
       res.status(500).json(err);
     });
 };
 
 const operatorsMe = (req, res) => {
   apis("GET", `${OP_AVY_URL}/operators/me`, null, bearerToken)
-    .then(function(response) {
+    .then((response) => {
       res.status(200).json(response);
     })
-    .catch(function(err) {
+    .catch((err) => {
       res.status(500).json(err);
     });
 };
@@ -44,10 +44,10 @@ const operatorsMeFiles = (req, res) => {
   };
 
   apis("POST", `${OP_AVY_URL}/operators/me/files`, null, bearerToken, formData)
-    .then(function(response) {
+    .then((response) => {
       res.status(200).json(response);
     })
-    .catch(function(err) {
+    .catch((err) => {
       res.status(500).json(err);
     });
 };
